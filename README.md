@@ -4,6 +4,7 @@ Repositorio que almacena todos los scripts utilizados en la metodología del des
 #  OASIS DE NIEBLA
 ![](https://github.com/juandomingoHM/juandomingoHM/blob/main/banner%20oaisis%20de%20neblina.png)
 
+reporte SDM desarrollado: https://rpubs.com/juandomingoHM/678642
 repositorios de referencia: https://github.com/BlasBenito/TallerModelosGBIF2019.git 
 
 
