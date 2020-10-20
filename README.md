@@ -141,6 +141,95 @@ proj4string(variables) <- projection(raster())
 # guardar variables estandarizadas finales por cada una 
 writeRaster(variables[["variable1"]], filename="~/ensayos/variables/variable1.asc", format="ascii", overwrite=TRUE) #1
 ```
+
+# ANALISIS DE CORRELACION ENTRE VARIABLES CANDIDATAS
+
+```r
+#Librerias utilizadas
+library(ggdendro) #para graficar dendrogramas
+library(dplyr) #maninulacion de dataframe
+```
+```r
+#Listado de variables estandarizadas
+lista.variables <- list.files(path="~/ensayos/variables",pattern='*.asc', full.names=TRUE)
+lista.variables
+
+#Generacion de un stack para el listado de variables
+variables <- stack(lista.variables)
+names(variables) #nombre de las variables
+variables
+
+#Consulta de resolucion de la variable
+res.grados<-xres(variables)
+res.km<-res.grados*111.19 #calculo de resolucion por cuadricula en kilometros
+res.km
+
+#Consulta de proyeccione espacial de una variable
+projection(variables[[2]])
+
+#Convertir las variables estandarizadas en matrices (dataframe)
+variables.tabla<-as.data.frame(variables)
+
+#Eliminar los valores nulos (NA) de las variables
+variables.tabla<-na.omit(variables.tabla)
+
+#Generar correlacion entre matrices de las variables
+variables.correlacion<-cor(variables.tabla)
+variables.correlacion
+write.csv(variables.correlacion, file = "~/presencias/correlación_bio's.csv") #guardar correlacion entre variables
+
+#Aplicar reduccion de distancias para eliminar correlaciones negativas para pasarlas a valores absolutos 
+variables.dist<-as.dist(abs(variables.correlacion)) #deja solo valores absolutos
+variables.dist
+
+#Generacion de dendrograma de cluster (menor distancia = mayor correlacion)
+variables.cluster<-hclust(1-variables.dist)
+variables.cluster
+plot(variables.cluster, hang = -1) #invertir la correlación (por eso es 1-variable.cluster)
+```
+
+
+
+```r
+#visualización, interpretacion y seleccion de grupos en dendrograma de correlacion
+rect.hclust(variables.cluster, 16) #se eligen un numero de clases o grupos de acuerdo al numero de variable y su interpretacion grafica
+abline(h = 0.28, col = 'blue') #dada la interpretacion, se selecciona un punto de corte en los 0,72 (0,28 ya que el grafico esta invertido)
+hcd <- as.dendrogram(variables.cluster)
+
+#visaulizacion de dendrograma cluster con un punto de corte 0,72
+plot(hcd, type = "rectangle", ylab = "Height")
+plot(hcd, xlim = c(1, 27), ylim = c(0,1)) #27 = N° variables
+plot(hcd,  ylab = "Correlación invertida", edgePar = list(col = 2:3, lwd = 2:1),
+     main= "Correlación Variables")
+```
+
+# SELECCION DE VARIABLES PARA LA MODELACION
+
+```r
+#Eliminacion manual de variables que superan la correlacion de 0,72 dada la interpretacion del cluster dendrograma
+variables.tabla2<-variables.tabla #tabla que contiene las 27 variables candidatas
+variables.tabla2 <- select(variables.tabla2, -a.acum, -tri, -temp.max, -ind.ari, -pp.mean, -temp.min, -dir.pend.ew, -dir.pend.ns,
+                           -dir.dren, -hills, -relief, -aspec, -evi.max, -curv, ipt) #eliminacion de variables con alta correlacion > 0,72
+variables.tabla2
+
+#Segundo filtro de seleccion utlizando el VIF
+resultado.vif<-vif(variables.tabla2) #este filtro sirve para descartar variables de comportarmiento lineal que podrian alterar la modelacion
+resultado.vif #se descarta aquellas con alta correlacion dado el calculo (en mi caso no fue necesario)
+
+#Compacto de variables seleccionadas aplicados los filtros
+variables.seleccionadas<-names(resultado.vif) #seleccion final de variables 
+variables.seleccionadas
+variables.seleccionadas<-names(variables.tabla2) #seleccion final 
+variables.seleccionadas
+
+#Se crea un brick con las variables seleccionadas
+variables<-brick(variables[[variables.seleccionadas]])
+variables
+plot(variables) #resultado y visualizacion de variables seleccionadas
+```
+
+
+
 # MODELACION DE DISTRIBUCION POTENCIAL DE ESPECIES
 
 ```r
@@ -254,7 +343,11 @@ gr2 <- ggplot(me_df, aes(x=reorder(variable, percent.contribution), y = percent.
   geom_bar(stat="identity", width=0.5, fill = "grey") 
 gr2 + xlab("variables") + ylab("% porcentaje de contribución") + 
   ggtitle("contribución por variable modelo estandar maxent\n percentil (%)") + theme_bw()+ coord_flip()
+```
 
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/contribuci%C3%B3n.png)
+
+```r
 #crear mapa de prediccion del modelo
 map <- predict(me, layers, progress="text")
 plot(map)
@@ -269,6 +362,9 @@ ggplot(map_df, aes(x=layer)) +
   labs(title="Pixeles de Entropía modelo MAXENT",x="Valores de Entropía", y = "Cantidad de pixeles")+
   theme_classic() + scale_y_continuous(breaks=seq(0, 300000, 50000))
 ```
+
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/pixel.png)
+
 ```r
 #Guardar los resultados
 writeRaster(map,"C:/Users/juand/Desktop/mxent/adesmia_melanocaulos/adesmia_melanocaulos.tif",overwrite=T)
@@ -284,8 +380,11 @@ ggplot(data = resp) +
   scale_y_continuous(limit = c(-1,1)) +  ggtitle("Respuesta Elevación")
 ```
 
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/elevacion.png)
+
 # 5 EVALUACION DEL MODELO usando kfold partitioning (particiones/grupos de entrenamiento)
 
+```r
 #Ejemplo para 1 fold, validación cruzada. dividir las presencias en grupos
 fold <- kfold(oc, k=4) #Genera un indice aleatorio de los K-folds
 occtest <- oc[fold == 1, ] #de k grupos, llamo al 1°, % de datos para probar el modelo
@@ -295,7 +394,7 @@ env.values<-data.frame(rbind(occtrain, bg))
 me_env <- maxent(env.values, y_env, args=c("addsamplestobackground=true"), path="C:/Users/juand/Desktop/mxent/adesmia_melanocaulos/outputR3")
 ev <- evaluate(me_env, p=data.frame(occtest), a=data.frame(bg)) #evaluar prediccion sobre el conjunto de datos creado
 str(ev)
-
+```
 #busqueda de umbrales
 ```r
 tss <- ev@TPR+ev@TNR-1 #Computing True Skill Statistic = TPR(Sensitivity)+TNR(Specificity)-1
@@ -306,6 +405,9 @@ plot((1-ev@TNR),ev@TPR,type="l",xlab="Fractional Predicted Area (1 - Specificity
 ev@auc 
 plot(ev, "ROC") #AUC Plot: X=1-Specificity, Y=Sensitivity. Curva Bajo el Umbral
 ```
+
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/AUC.png)
+
 ```r
 #Evaluacion con todos los grupos generados por las particiones K-fold
 auc<-rep(NA,4) #crea vector vacio para guardar valores de AUC 
@@ -337,9 +439,36 @@ plot(map, main = "Adesmia melanocaulos")
 points(occs, pch='+', cex=0.5, col='black')
 umbral <- (map >= umbral.tss)
 ```
+
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/Rplot01.png)
+
 ```r
 class(umbral)
 writeRaster(umbral,"C:/Users/juand/Desktop/mxent/adesmia_melanocaulos/adesmia_melanocaulos_umbral.tif",overwrite=T)
+```
+# (OPCIONAL) CORREGRAMAS DE PRESENCIAS SOBRE VARIABLES
+
+```r
+#Librerias necesarias
+library(corrgram)
+library(RColorBrewer)
+require(pacman)
+pacman::p_load(raster, rgdal, rgeos,  velox, usdm, gtools, tidyverse, corrplot, Hmisc)
+```
+g <- gc(reset = TRUE)
+rm(list = ls())
+options(scipen = 999,
+        stringsAsFactors = FALSE)
+```r
+#correlaciones 
+corr_var <- read.csv("~/especies/adesmia_melanocaulos/presencia&variables.csv")
+corr_var
+corr_var <- corr_var[,4:ncol(corr_var)]
+#correlaciones con cluster
+col1 <- colorRampPalette(c("#7F0000", "red", "#FF7F00", "yellow", "white",
+                           "cyan", "#007FFF", "blue", "#00007F"))
+corrplot(corrgram(corr_var), type = "upper", order = "hclust", addrect = 4,
+         col = col1(100))
 ```
 
 reporte SDM desarrollado: https://rpubs.com/juandomingoHM/678642
