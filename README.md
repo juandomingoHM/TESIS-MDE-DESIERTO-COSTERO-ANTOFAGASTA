@@ -82,8 +82,8 @@ plot(variables.brick)
 plot(variables.brick[[1]])
 plot(Chile, add=T)
 ```
-
-![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20varaibles%20chile.png)
+#variable area acumulada en metros cuadrados 
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20chile%20y%20mask%20NA.png)
 
 ```r
 #cortar cada capa de variables estadarizadas que estan contenidas en el brick
@@ -110,6 +110,10 @@ names(variables)
 variables
 plot(variables[[1]])
 ```
+
+#variable area acumulada en metros cuadrados 
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20chile%20y%20mask%20NA.png)
+
 ```r
 #capa vectorial de zonas urbanas
 urbes <- readOGR(dsn=path.expand("~/DATOS/archivos/shapes/TESIS_MDE/cuad_mask"),
@@ -117,6 +121,10 @@ urbes <- readOGR(dsn=path.expand("~/DATOS/archivos/shapes/TESIS_MDE/cuad_mask"),
 urbes <- spTransform(urbes,"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0") #reproyectar la capa vectorial con la proyeccion de las variables
 plot(urbes)
 ```
+
+#mascara de ciudades y areas urbanas de Chile
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20urbes.png)
+
 ```r
 projection(urbes) #consulta de proyeccion
 
@@ -124,6 +132,10 @@ projection(urbes) #consulta de proyeccion
 variables<-mask(variables, urbes)
 plot(variables[[1]])
 ```
+
+#aplicacion de mascara para extraer areas que se encuentren ciudades 
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20final%20urbes.png)
+
 ```r
 #capa vectorial de zonas agricolas
 agro <- readOGR(dsn=path.expand("~/DATOS/archivos/shapes/TESIS_MDE/agro_mask_cuad"),
@@ -131,6 +143,10 @@ agro <- readOGR(dsn=path.expand("~/DATOS/archivos/shapes/TESIS_MDE/agro_mask_cua
 agro <- spTransform(agro,"+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0") #reproyectar la capa vectorial con la proyeccion de las variables
 plot(agro)
 ```
+
+#mascara zonas de agricultura 
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20agroo.png)
+
 ```r
 projection(agro) #consulta de proyeccion 
 
@@ -138,6 +154,9 @@ projection(agro) #consulta de proyeccion
 variables<-mask(variables, agro)
 plot(variables[[3]])
 ```
+#aplicacion de mascara para extraer areas que se encuentren zonas de agricultura (variable de altura)
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/altura.png)
+
 ```r
 proj4string(variables) <- projection(raster())
 
@@ -190,21 +209,22 @@ variables.cluster<-hclust(1-variables.dist)
 variables.cluster
 plot(variables.cluster, hang = -1) #invertir la correlación (por eso es 1-variable.cluster)
 ```
-
-
-
 ```r
 #visualización, interpretacion y seleccion de grupos en dendrograma de correlacion
 rect.hclust(variables.cluster, 16) #se eligen un numero de clases o grupos de acuerdo al numero de variable y su interpretacion grafica
 abline(h = 0.28, col = 'blue') #dada la interpretacion, se selecciona un punto de corte en los 0,72 (0,28 ya que el grafico esta invertido)
 hcd <- as.dendrogram(variables.cluster)
 
-#visaulizacion de dendrograma cluster con un punto de corte 0,72
+#visualizacion de dendrograma cluster con un punto de corte 0,72
 plot(hcd, type = "rectangle", ylab = "Height")
 plot(hcd, xlim = c(1, 27), ylim = c(0,1)) #27 = N° variables
 plot(hcd,  ylab = "Correlación invertida", edgePar = list(col = 2:3, lwd = 2:1),
      main= "Correlación Variables")
 ```
+
+#Dendrograma de correlacion entre variables con corte de 0,72
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/Correlacion%20variables.png)
+
 
 # SELECCION DE VARIABLES PARA LA MODELACION
 
@@ -231,6 +251,8 @@ variables
 plot(variables) #resultado y visualizacion de variables seleccionadas
 ```
 
+#Resultado de la seleccion de variables, se seleccionaron 13 de 27
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/Seleccion%20final%20de%20variables.png)
 
 
 # MODELACION DE DISTRIBUCION POTENCIAL DE ESPECIES
