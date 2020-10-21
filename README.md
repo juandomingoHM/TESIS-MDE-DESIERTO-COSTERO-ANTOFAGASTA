@@ -71,12 +71,7 @@ plot(variables.brick)
 ```r
 #aplicación de máscara con celdas con valores nulos (NA) a las variables estandarizadas
 variables.brick<-mask(variables.brick, valores.nulos)
-plot(variables.brick)
-```
 
-![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20varaibles%20chile.png)
-
-```r
 #Aplicacion de mascara de chile continental(area de estudio) a las varaibles estandarizadas
 Chile <- readOGR(dsn=path.expand("~/DATOS/archivos/shapes/extent_norte"),
                  layer="extent_norte")
@@ -88,7 +83,7 @@ plot(variables.brick[[1]])
 plot(Chile, add=T)
 ```
 
-![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20chile%20y%20mask%20NA.png)
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20varaibles%20chile.png)
 
 ```r
 #cortar cada capa de variables estadarizadas que estan contenidas en el brick
