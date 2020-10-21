@@ -99,7 +99,7 @@ projection(agro) #consulta de proyeccion
 
 #aplicacion de mascaras de zonas agricolas a las variables estandarizadas
 variables<-mask(variables, agro)
-plot(variables[[3]])
+plot(variables[[4]])
 proj4string(variables) <- projection(raster())
 
 # guardar variables estandarizadas finales por cada una 
