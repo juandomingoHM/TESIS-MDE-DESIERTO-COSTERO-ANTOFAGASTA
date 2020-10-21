@@ -10,7 +10,7 @@ Repositorio que almacena todos los scripts utilizados en la metodología del des
 
 1. 
 
-# Estandarizacion de variables
+# ESTANDARIZACION DE VARIABLES
 
 ```r
 Librerias requeridas
@@ -53,15 +53,10 @@ valores.nulos=variable1*variable2*variable3*variable4*variable5   #mapa con celd
 par(mfrow=c(1,1)) 
 plot(valores.nulos) #visualizacion
 ```
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mascara%20valores%20nulos.png)
 
 # ELIMINACION DE CELDAS NULAS A LAS VARIABLES ESTANDARIZADAS
 
-```r
-#Mascara de celdas nulas para eliminar aquellas celdas sin datos en el set de variables
-valores.nulos=variable1*variable2*variable3*variable4*variable5   #mapa con celdas nulas (multiplicacion entre variables)
-par(mfrow=c(1,1)) 
-plot(valores.nulos) #visualizacion
-```
 ```r
 #Brick para eliminar celdas nulas
 variables.brick<-brick(variable1,variable2,variable3,variable4,variable5)
@@ -70,11 +65,17 @@ variables.brick<-brick(variable1,variable2,variable3,variable4,variable5)
 names(variables.brick)<-c("variable1","variable2","variable3","variable4","variable5")
 plot(variables.brick)
 ```
+
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20variables.png)
+
 ```r
 #aplicación de máscara con celdas con valores nulos (NA) a las variables estandarizadas
 variables.brick<-mask(variables.brick, valores.nulos)
 plot(variables.brick)
 ```
+
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20varaibles%20chile.png)
+
 ```r
 #Aplicacion de mascara de chile continental(area de estudio) a las varaibles estandarizadas
 Chile <- readOGR(dsn=path.expand("~/DATOS/archivos/shapes/extent_norte"),
@@ -86,11 +87,18 @@ plot(variables.brick)
 plot(variables.brick[[1]])
 plot(Chile, add=T)
 ```
+
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20chile%20y%20mask%20NA.png)
+
 ```r
 #cortar cada capa de variables estadarizadas que estan contenidas en el brick
 variables.brick<-crop(x=variables.brick, y=extent(dem30))
 plot(variables.brick)
+```
 
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/mask%20varaibles%20chile.png)
+
+```r
 #guardamos las variables preparadas al disco duro por cada variable
 writeRaster(variables.brick[["variable1"]], filename="~/ensayos/variables_crop/variable1.asc", format="ascii", overwrite=TRUE)
 ```
