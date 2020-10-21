@@ -480,11 +480,11 @@ library(RColorBrewer)
 require(pacman)
 pacman::p_load(raster, rgdal, rgeos,  velox, usdm, gtools, tidyverse, corrplot, Hmisc)
 ```
+```r
 g <- gc(reset = TRUE)
 rm(list = ls())
 options(scipen = 999,
         stringsAsFactors = FALSE)
-```r
 #correlaciones 
 corr_var <- read.csv("~/especies/adesmia_melanocaulos/presencia&variables.csv")
 corr_var
@@ -495,8 +495,13 @@ col1 <- colorRampPalette(c("#7F0000", "red", "#FF7F00", "yellow", "white",
 corrplot(corrgram(corr_var), type = "upper", order = "hclust", addrect = 4,
          col = col1(100))
 ```
+#Corregrama de presencias sobre variables
+![](https://github.com/juandomingoHM/juandomingoHM/blob/main/corregrama.png)
 
+# REPOSITORIOS Y REFERENCIAS
 reporte SDM desarrollado: https://rpubs.com/juandomingoHM/678642
-repositorios de referencia: https://github.com/BlasBenito/TallerModelosGBIF2019.git 
+repositorios de BlasBenito: https://github.com/BlasBenito/TallerModelosGBIF2019.git 
+repositorios de shandongfx: https://github.com/shandongfx/workshop_maxent_R/blob/master/code/Appendix1_case_study.md
+repositorios de jivelasquezt: https://github.com/jivelasquezt/courses/tree/master/Hangout_Maxent
 
 
