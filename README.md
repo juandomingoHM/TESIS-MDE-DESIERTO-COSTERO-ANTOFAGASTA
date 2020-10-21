@@ -4,11 +4,6 @@ Repositorio que almacena todos los scripts utilizados en la metodología del des
 #  OASIS DE NIEBLA
 ![](https://github.com/juandomingoHM/juandomingoHM/blob/main/banner%20oaisis%20de%20neblina.png)
 
-# METODOLOGÍA DESARROLLADA 
-
-# indice
-
-1. 
 
 # ESTANDARIZACION DE VARIABLES
 
